@@ -9,21 +9,18 @@ import $ from 'jquery'
 
 const contentInner = '.content-inner'
 const projectMetaTag = 'meta[name="project"]'
-const message = {hint: {}, ready: false, requestId: null}
+const message = {hint: {}, ready: false}
 
 /**
  *  Will try to extract hint info, and if successful triggers a message to the parent page.
  */
 function sendHint () {
   const params = new URLSearchParams(window.location.search)
-  const requestId = params.get('requestId')
   const hash = window.location.hash
   const content = $(contentInner)
   let hint = null
 
   if (!params.has('hint')) { return }
-
-  if (!requestId) { return }
 
   const infoElement = descriptionElementFromHash(hash)
 
@@ -37,17 +34,16 @@ function sendHint () {
 
   hint.version = getProjectVersion()
 
-  postMessage(hint, requestId)
+  postMessage(hint)
 }
 
 /**
  * Sends a message (containing everything needed to display a tooltip hint) to the parent page.
  */
-function postMessage (hint, requestId) {
+function postMessage (hint) {
   if (window.self !== window.parent) {
     message.hint = hint
     message.ready = true
-    message.requestId = requestId
     window.parent.postMessage(message, '*')
   }
 }
