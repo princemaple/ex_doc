@@ -31,10 +31,11 @@ const typesCategories = [
 const tooltipsToggleSelector = '.tooltips-toggle' // `Enable/Disable tooltips` button
 const tooltipsDisabledStorageKey = 'tooltipsDisabled' // Local Storage key Used to store tooltips settings
 const moduleContentHash = '#content' // Hash included in links pointing to module pages
+const tooltipKeyRegex = /\w[\w.]+\.html#.+$/;
 
 let tooltipElement = null // Will store the jQuery selector for the tooltip root
 let currentLinkElement = null // Element that the cursor is hovering over
-let currentTooltipHref = null // URL of the tooltip we're waiting for
+let currentTooltipKey = null // URL of the tooltip we're waiting for
 let showTimeoutAnimation = null // Timeout ID related to the tooltip show animation
 let hideTimeoutVisibility = null // Timeout ID related to the tooltip hide animation
 let hoverDelayTimeout = null // Timeout ID related to the `hoverDelayTime` described above
@@ -86,7 +87,7 @@ function updateToggleLink () {
  */
 
 function receivePopupMessage (event) {
-  if (event.data.tooltipHref !== currentTooltipHref) { return }
+  if (event.data.tooltipKey !== currentTooltipKey) { return }
   if (event.data.ready !== true) { return }
 
   showTooltip(event.data.hint)
@@ -218,7 +219,7 @@ function prepareTooltips () {
 
   if (isSelfLink(href)) { return }
 
-  currentTooltipHref = href
+  currentTooltipKey = tooltipKeyRegex.exec(href)[0]
 
   const typeCategory = findTypeCategory(href)
 
