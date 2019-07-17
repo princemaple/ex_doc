@@ -34,7 +34,7 @@ const moduleContentHash = '#content' // Hash included in links pointing to modul
 
 let tooltipElement = null // Will store the jQuery selector for the tooltip root
 let currentLinkElement = null // Element that the cursor is hovering over
-let currentRequestId = null // ID of the request we're waiting for
+let currentTooltipHref = null // URL of the tooltip we're waiting for
 let showTimeoutAnimation = null // Timeout ID related to the tooltip show animation
 let hideTimeoutVisibility = null // Timeout ID related to the tooltip hide animation
 let hoverDelayTimeout = null // Timeout ID related to the `hoverDelayTime` described above
@@ -86,7 +86,7 @@ function updateToggleLink () {
  */
 
 function receivePopupMessage (event) {
-  if (event.data.requestId !== currentRequestId) { return }
+  if (event.data.tooltipHref !== currentTooltipHref) { return }
   if (event.data.ready !== true) { return }
 
   showTooltip(event.data.hint)
@@ -103,8 +103,6 @@ function hoverStart () {
   if (currentLinkElement.prop('tagName') !== 'A') {
     currentLinkElement = $(this).parent()
   }
-
-  currentRequestId = uid()
 
   hoverDelayTimeout = setTimeout(function () {
     hideTimeoutVisibility && clearTimeout(hideTimeoutVisibility)
@@ -220,6 +218,8 @@ function prepareTooltips () {
 
   if (isSelfLink(href)) { return }
 
+  currentTooltipHref = href
+
   const typeCategory = findTypeCategory(href)
 
   if (typeCategory) {
@@ -269,7 +269,7 @@ function hideTooltip () {
  * @returns {string} link with parameters added
  */
 function rewriteHref (href) {
-  return href.replace('.html', `.html?hint=true&requestId=${currentRequestId}`)
+  return href.replace('.html', `.html?hint=true`)
 }
 
 /**
